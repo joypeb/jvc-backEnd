@@ -168,3 +168,5 @@ hs_err_pid*
 
 /gradle/wrapper/gradle-wrapper.jar
 /gradle/wrapper/gradle-wrapper.properties
+/private_key.pem
+/public_key.pem
