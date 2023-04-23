@@ -1,4 +1,29 @@
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    default-encoding: UTF-8
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+server:
+  servlet:
+    encoding:
+      force-response: true
+  port: 8080
+
+spring.jpa:
+  show-sql: true
+  open-in-view: false
