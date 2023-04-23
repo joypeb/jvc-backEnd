@@ -21,7 +21,7 @@ public class SecurityConfig{
                 .httpBasic().disable()
                 .authorizeHttpRequests()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/v1/test").permitAll()
+                .requestMatchers("/api/v1/users/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
