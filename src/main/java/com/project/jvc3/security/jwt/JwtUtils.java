@@ -3,6 +3,10 @@ package com.project.jvc3.security.jwt;
 import com.project.jvc3.domain.entity.User;
 import com.project.jvc3.domain.types.TokenType;
 import com.project.jvc3.domain.types.UserRole;
+import com.project.jvc3.exception.jwt.JwtErrorCode;
+import com.project.jvc3.exception.jwt.JwtException;
+import com.project.jvc3.exception.user.UserErrorCode;
+import com.project.jvc3.exception.user.UserException;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -78,8 +82,8 @@ public class JwtUtils {
                     .build()
                     .parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
-        } catch (AppException e) {
-            throw new AppException(ErrorCode.INVALID_JSON_WEB_TOKEN_ERROR);
+        } catch (Exception e) {
+            throw new JwtException(JwtErrorCode.INVALID_JSON_WEB_TOKEN_ERROR);
         }
     }
 
@@ -94,8 +98,8 @@ public class JwtUtils {
 
             return oneDayAgo.isAfter(LocalDateTime.now());
 
-        } catch (AppException e) {
-            throw new AppException(ErrorCode.INVALID_JSON_WEB_TOKEN_ERROR);
+        } catch (Exception e) {
+            throw new JwtException(JwtErrorCode.INVALID_JSON_WEB_TOKEN_ERROR);
         }
     }
 
@@ -123,7 +127,7 @@ public class JwtUtils {
         log.info("token nickname " + nickname);
 
         User user = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role.toString());
 
