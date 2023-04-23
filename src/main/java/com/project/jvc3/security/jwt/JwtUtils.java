@@ -7,6 +7,8 @@ import com.project.jvc3.exception.jwt.JwtErrorCode;
 import com.project.jvc3.exception.jwt.JwtException;
 import com.project.jvc3.exception.user.UserErrorCode;
 import com.project.jvc3.exception.user.UserException;
+import com.project.jvc3.repository.UserRepository;
+import com.project.jvc3.security.key.KeyStore;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.security.Key;
-import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
@@ -29,12 +30,17 @@ import java.util.Date;
 
 @Configuration
 @Slf4j
-@RequiredArgsConstructor
 public class JwtUtils {
 
     private final PublicKey publicKey;
     private final SigningKeyResolver signingKeyResolver;
+    private final UserRepository userRepository;
 
+    public JwtUtils(UserRepository userRepository) {
+        this.publicKey = KeyStore.getInstance().getKeyPair().getPublic();
+        this.signingKeyResolver =  createSigningKeyResolver();
+        this.userRepository = userRepository;
+    }
 
     //토큰 생성
     public static String createToken(User user, PrivateKey privateKey, TokenType tokenType) {
