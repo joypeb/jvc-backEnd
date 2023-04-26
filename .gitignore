@@ -170,3 +170,4 @@ hs_err_pid*
 /gradle/wrapper/gradle-wrapper.properties
 /private_key.pem
 /public_key.pem
+/jvc3.iml
