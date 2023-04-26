@@ -28,7 +28,8 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     //회원가입
-    public User registerUser(SignupRequest signupRequest) {
+    @Transactional
+    public Long registerUser(SignupRequest signupRequest) {
         //이메일 형식 확인
         //나중에는 프론트에서 처리
         if(!EmailValidator.isValidEmail(signupRequest.getEmail())){
@@ -52,9 +53,10 @@ public class UserService {
         User user = User.save(signupRequest,encodedPassword);
 
         //유저 저장 및 리턴
-        return userRepository.save(user);
+        return userRepository.save(user).getId();
     }
 
+    @Transactional
     public LoginResponse loginUser(LoginRequest loginRequest) {
         //user검사
         User user = userRepository.findByEmail(loginRequest.getEmail())
