@@ -24,13 +24,13 @@ public class EmailVerificationToken {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private LocalDateTime expiryDate;
+    private LocalDateTime expirationDate;
 
-    public static EmailVerificationToken save(User user,String token, LocalDateTime expiryDate) {
+    public static EmailVerificationToken save(User user,String token, LocalDateTime expirationDate) {
         return EmailVerificationToken.builder()
                 .user(user)
                 .token(token)
-                .expiryDate(expiryDate)
+                .expirationDate(expirationDate)
                 .build();
     }
 }
