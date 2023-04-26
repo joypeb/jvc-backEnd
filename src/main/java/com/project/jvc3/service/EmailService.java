@@ -1,5 +1,6 @@
 package com.project.jvc3.service;
 
+import com.project.jvc3.domain.dto.user.SignupRequest;
 import com.project.jvc3.domain.entity.EmailVerificationToken;
 import com.project.jvc3.domain.entity.User;
 import com.project.jvc3.exception.user.UserErrorCode;
@@ -12,6 +13,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -20,12 +22,12 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class EmailService {
     private final JavaMailSender javaMailSender;
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final UserRepository userRepository;
 
+    @Async("taskExecutor")
     public void sendVerificationEmail(User user, String token) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(user.getEmail());
@@ -35,14 +37,17 @@ public class EmailService {
         javaMailSender.send(mailMessage);
     }
 
-    @Async("taskExecutor")
-    public void getEmailToken(User user) {
+    @Transactional
+    public void getEmailToken(Long id) {
+        //user 받아오기
+        User user = userRepository.findById(id).orElseThrow( () -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
         //토큰, 토큰만료시간 추가
         String token = UUID.randomUUID().toString();
-        LocalDateTime expiryDate = LocalDateTime.now().minusHours(24);
+        LocalDateTime expirationDate = LocalDateTime.now().plusHours(24L);
 
         //토큰 객체 생성
-        EmailVerificationToken emailVerificationToken = EmailVerificationToken.save(user,token,expiryDate);
+        EmailVerificationToken emailVerificationToken = EmailVerificationToken.save(user,token,expirationDate);
 
         //토큰 저장
         emailVerificationTokenRepository.save(emailVerificationToken);
@@ -51,6 +56,7 @@ public class EmailService {
         sendVerificationEmail(user, emailVerificationToken.getToken());
     }
 
+    @Transactional
     public void verifyEmail(String token) {
         //토큰을 이용해 객체 확인
         EmailVerificationToken emailVerificationToken = emailVerificationTokenRepository.findByToken(token);
@@ -63,7 +69,7 @@ public class EmailService {
         }
 
         //토큰 기간이 만료되었을경우
-        if (!emailVerificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+        if (emailVerificationToken.getExpirationDate().isBefore(LocalDateTime.now())) {
             throw new UserException(UserErrorCode.EMAIL_VERIFICATION_TOKEN_EXPIRED);
         }
 
