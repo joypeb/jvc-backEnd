@@ -72,6 +72,7 @@ class UserControllerTest {
     }
 
     private static final String BASE_URL = "/api/v1/users";
+    private static final String EMAIL = "rovirel948@soombo.com";
 
     @Test
     @DisplayName("회원가입 성공")
@@ -103,14 +104,14 @@ class UserControllerTest {
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
     public void testSignUpUser_failed_emailAlreadyExist() throws Exception {
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signupRequest)))
                 .andExpect(status().isOk());
 
-        SignupRequest signupRequest2 = new SignupRequest("test@test.co","password","name","nickname2");
+        SignupRequest signupRequest2 = new SignupRequest(EMAIL,"password","name","nickname2");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,14 +122,14 @@ class UserControllerTest {
     @Test
     @DisplayName("회원가입 실패 - 닉네임 중복")
     public void testSignUpUser_failed_nicknameAlreadyExist() throws Exception {
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signupRequest)))
                 .andExpect(status().isOk());
 
-        SignupRequest signupRequest2 = new SignupRequest("test2@test.co","password","name","nickname");
+        SignupRequest signupRequest2 = new SignupRequest(EMAIL+"1","password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +140,7 @@ class UserControllerTest {
     @Test
     @DisplayName("이메일 인증 성공")
     public void testEmailVerification_success() throws Exception {
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -160,7 +161,7 @@ class UserControllerTest {
     @Test
     @DisplayName("이메일 인증 실패 - 토큰 기간 만료")
     public void testEmailVerification_failed_tokenExpired() throws Exception {
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +185,7 @@ class UserControllerTest {
     @DisplayName("로그인 성공")
     public void testLogin_success() throws Exception{
         //회원가입
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -220,7 +221,7 @@ class UserControllerTest {
     @DisplayName("로그인 실패 - 패스워드 불일치")
     public void testLogin_failed_password() throws Exception{
         //회원가입
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -244,7 +245,7 @@ class UserControllerTest {
     @DisplayName("로그인 실패 - 이메일 인증 미완료")
     public void testLogin_failed_emailVerificationInvalid() throws Exception{
         //회원가입
-        SignupRequest signupRequest = new SignupRequest("test@test.co","password","name","nickname");
+        SignupRequest signupRequest = new SignupRequest(EMAIL,"password","name","nickname");
 
         mockMvc.perform(post(BASE_URL + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
