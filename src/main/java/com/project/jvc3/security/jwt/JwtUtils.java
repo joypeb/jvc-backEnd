@@ -80,25 +80,29 @@ public class JwtUtils {
         return null;
     }
 
-    //토큰 검증
-    public boolean validateToken(String token) {
+    public Jws<Claims> getClaims(String token) {
         try {
             Jws<Claims> claims = Jwts.parserBuilder()
                     .setSigningKeyResolver(signingKeyResolver)
                     .build()
                     .parseClaimsJws(token);
+            return claims;
+        } catch (Exception e) {
+            throw new JwtException(JwtErrorCode.INVALID_JSON_WEB_TOKEN_ERROR);
+        }
+    }
+
+    //토큰 검증
+    public boolean validateToken(Jws<Claims> claims, String token) {
+        try {
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             throw new JwtException(JwtErrorCode.INVALID_JSON_WEB_TOKEN_ERROR);
         }
     }
 
-    public boolean isTokenExpiringSoon(String token) {
+    public boolean TokenExpiringSoon(Jws<Claims> claims, String token) {
         try {
-            Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKeyResolver(signingKeyResolver)
-                    .build()
-                    .parseClaimsJws(token);
             LocalDateTime expirationDate = claims.getBody().getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             LocalDateTime oneDayAgo = expirationDate.minusDays(1);
 
@@ -119,12 +123,13 @@ public class JwtUtils {
         };
     }
 
-    public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parserBuilder()
+    public Authentication getAuthentication(Jws<Claims> claims2, String token) {
+        Claims claims = claims2.getBody();
+                /*Jwts.parserBuilder()
                 .setSigningKeyResolver(signingKeyResolver)
                 .build()
                 .parseClaimsJws(token)
-                .getBody();
+                .getBody();*/
 
         String nickname = claims.get("nickname", String.class);
         String roleString = claims.get("role", String.class);
@@ -132,11 +137,8 @@ public class JwtUtils {
 
         log.info("token nickname " + nickname);
 
-        User user = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role.toString());
 
-        return new UsernamePasswordAuthenticationToken(user, "", Collections.singletonList(simpleGrantedAuthority));
+        return new UsernamePasswordAuthenticationToken(nickname, "", Collections.singletonList(simpleGrantedAuthority));
     }
 }
