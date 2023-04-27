@@ -38,10 +38,7 @@ public class EmailService {
     }
 
     @Transactional
-    public void getEmailToken(Long id) {
-        //user 받아오기
-        User user = userRepository.findById(id).orElseThrow( () -> new UserException(UserErrorCode.USER_NOT_FOUND));
-
+    public String getEmailToken(User user) {
         //토큰, 토큰만료시간 추가
         String token = UUID.randomUUID().toString();
         LocalDateTime expirationDate = LocalDateTime.now().plusHours(24L);
@@ -50,10 +47,7 @@ public class EmailService {
         EmailVerificationToken emailVerificationToken = EmailVerificationToken.save(user,token,expirationDate);
 
         //토큰 저장
-        emailVerificationTokenRepository.save(emailVerificationToken);
-
-        //이메일 전송
-        sendVerificationEmail(user, emailVerificationToken.getToken());
+        return emailVerificationTokenRepository.save(emailVerificationToken).getToken();
     }
 
     @Transactional

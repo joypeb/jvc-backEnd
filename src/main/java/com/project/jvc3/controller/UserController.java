@@ -25,11 +25,8 @@ public class UserController {
     //유저 회원가입
     @PostMapping("/signup")
     public ResponseEntity<Response> registerUser(@RequestBody SignupRequest signupRequest) {
-        //회원가입 처리
-        Long id = userService.registerUser(signupRequest);
-
-        //이메일 인증 전송
-        emailService.getEmailToken(id);
+        //회원가입 처리 및 이메일 전송
+        userService.registerUser(signupRequest);
 
         return ResponseEntity.ok().body(Response.success("회원가입에 성공하였습니다 이메일을 인증해주세요"));
     }

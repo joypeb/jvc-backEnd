@@ -26,10 +26,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     //회원가입
     @Transactional
-    public Long registerUser(SignupRequest signupRequest) {
+    public void registerUser(SignupRequest signupRequest) {
         //이메일 형식 확인
         //나중에는 프론트에서 처리
         if(!EmailValidator.isValidEmail(signupRequest.getEmail())){
@@ -52,8 +53,14 @@ public class UserService {
         //유저 생성
         User user = User.save(signupRequest,encodedPassword);
 
-        //유저 저장 및 리턴
-        return userRepository.save(user).getId();
+        //유저 저장
+        User savedUser = userRepository.save(user);
+
+        //이메일 토큰 생성
+        String token = emailService.getEmailToken(savedUser);
+
+        //이메일 전송
+        emailService.sendVerificationEmail(savedUser, token);
     }
 
     @Transactional
