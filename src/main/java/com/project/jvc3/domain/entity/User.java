@@ -48,9 +48,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private EmailVerificationToken emailVerificationToken;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Post> posts = new ArrayList<>();
-
     public static User save(SignupRequest signupRequest, String password) {
         return User.builder()
                 .email(signupRequest.getEmail())
