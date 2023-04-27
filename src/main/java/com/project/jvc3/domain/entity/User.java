@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -46,6 +48,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private EmailVerificationToken emailVerificationToken;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Post> posts = new ArrayList<>();
+
     public static User save(SignupRequest signupRequest, String password) {
         return User.builder()
                 .email(signupRequest.getEmail())
@@ -64,5 +69,10 @@ public class User {
 
     public boolean getEmailVerified() {
         return this.emailVerified;
+    }
+
+    public User(String nickname, UserRole userRole) {
+        this.nickname = nickname;
+        this.userRole = userRole;
     }
 }
